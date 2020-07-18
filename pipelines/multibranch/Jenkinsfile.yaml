@@ -33,7 +33,6 @@ pipeline:
             - branch 'master'
           steps:
             script:
-              - sh "echo ${deploy}"
               - sh 'mkdir deployment'
               - dir: "'deployment'"
                 script:
