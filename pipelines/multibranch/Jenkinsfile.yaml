@@ -7,9 +7,6 @@ pipeline:
   tools:
     maven: default
   stages:
-    - stage: Checkout
-      steps:
-        - git 'https://github.com/aytuncbeken/pipeline-as-yaml-tutorials.git'
     - stage: Maven
       stages:
         - stage: Build
