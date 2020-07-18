@@ -40,7 +40,14 @@ pipeline:
               - dir: "'deployment'"
                 script:
                   - sh "cp ../target/*.jar ."
-
+        - stage: Smoke Test
+          parallel:
+            - stage: Check Main Page
+              steps:
+                - sh "curl https://api.ipify.org?format=json"
+            - stage: Check Other Page
+              steps:
+                - sh "curl https://api.ipify.org?format=json"
   post:
     always:
       - cleanWs()
