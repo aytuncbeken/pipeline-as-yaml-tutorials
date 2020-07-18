@@ -1,0 +1,46 @@
+pipeline:
+  environment:
+  parameters:
+    - "string defaultValue: '3', description: '', name: 'USERS', trim: false"
+  options:
+    - disableConcurrentBuilds()
+  agent:
+    any:
+  tools:
+    maven: default
+  stages:
+    - stage: Checkout
+      steps:
+        - git 'https://github.com/aytuncbeken/pipeline-as-yaml-tutorials.git'
+    - stage: Maven
+      stages:
+        - stage: Build
+          steps:
+            - sh 'mvn clean compile'
+        - stage: Test
+          steps:
+            script:
+              - sh "mvn clean test -Dusers=${USERS}"
+        - stage: Install
+          steps:
+            script:
+              - withCredentials: "[usernamePassword(credentialsId: 'mycustom-credentials', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]"
+                script:
+                - sh "mvn clean install -DskipTest -Dusername=${USERNAME} -Dpassword=${PASSWORD}"
+              - withEnv: "['API_URL=https://api.ipify.org?format=json']"
+                script:
+                  - sh "curl ${API_URL}"
+        - stage: Deploy
+          when:
+            - branch 'master'
+          steps:
+            script:
+              - sh "echo ${deploy}"
+              - sh 'mkdir deployment'
+              - dir: "'deployment'"
+                script:
+                  - sh "cp ../target/*.jar ."
+
+  post:
+    always:
+      - cleanWs()
